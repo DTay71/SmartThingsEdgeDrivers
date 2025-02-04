@@ -19,7 +19,6 @@ local IASZone = clusters.IASZone
 local capabilities = require "st.capabilities"
 local zigbee_test_utils = require "integration_test.zigbee_test_utils"
 local IasEnrollResponseCode = require "st.zigbee.generated.zcl_clusters.IASZone.types.EnrollResponseCode"
-local base64 = require "st.base64"
 local t_utils = require "integration_test.utils"
 
 local ZoneStatusAttribute = IASZone.attributes.ZoneStatus
@@ -137,6 +136,10 @@ test.register_coroutine_test(
                                          mock_device.id,
                                          zigbee_test_utils.build_bind_request(mock_device, zigbee_test_utils.mock_hub_eui, IASZone.ID)
                                        })
+      test.socket.zigbee:__expect_send({
+                                        mock_device.id,
+                                        IASZone.attributes.ZoneStatus:configure_reporting(mock_device, 0xFFFF, 0x0000, 0)
+                                      })
 
       mock_device:expect_metadata_update({ provisioning_state = "PROVISIONED" })
     end
@@ -169,6 +172,14 @@ test.register_message_test(
         message = {
           mock_device.id,
           IASZone.attributes.ZoneStatus:read(mock_device)
+        }
+      },
+      {
+        channel = "zigbee",
+        direction = "send",
+        message = {
+          mock_device.id,
+          IASZone.attributes.ZoneStatus:configure_reporting(mock_device, 0xFFFF, 0x0000, 0)
         }
       },
     },

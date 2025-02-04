@@ -1,0 +1,65 @@
+matterManufacturer:
+#Eve
+  - id: "Eve MotionBlinds"
+    deviceLabel: Eve MotionBlinds
+    vendorId: 0x130A
+    productId: 0x55
+    deviceProfileName: window-covering-battery
+#Zemismart
+  - id: "Zemismart MT01 Slide Curtain"
+    deviceLabel: Zemismart MT01 Slide Curtain
+    vendorId: 0x139C
+    productId: 0xFFFE
+    deviceProfileName: window-covering
+  - id: "5020/65376"
+    deviceLabel: Zemismart MT25B Roller Motor
+    vendorId: 0x139C
+    productId: 0xFF60
+    deviceProfileName: window-covering
+  - id: "5020/65296"
+    deviceLabel: Zemismart MT82 Smart Curtain
+    vendorId: 0x139C
+    productId: 0xFF10
+    deviceProfileName: window-covering
+  - id: "5020/65301"
+    deviceLabel: Zemismart MT25A Thread Roller Motor
+    vendorId: 0x139C
+    productId: 0xFF15
+    deviceProfileName: window-covering
+  - id: "5020/64050"
+    deviceLabel: Zemismart ZM02 Smart Curtain
+    vendorId: 0x139C
+    productId: 0xFA32
+    deviceProfileName: window-covering
+  - id: "5020/64017"
+    deviceLabel: Zemismart ZM25C Smart Curtain
+    vendorId: 0x139C
+    productId: 0xFA11
+    deviceProfileName: window-covering
+  - id: "5020/64049"
+    deviceLabel: Zemismart ZM01 Smart Curtain
+    vendorId:  0x139C
+    productId: 0xFA31
+    deviceProfileName: window-covering
+#WISTAR
+  - id: "5207/17"
+    deviceLabel: WISTAR WSER40 Smart Tubular Motor
+    vendorId: 0x1457
+    productId: 0x0011
+    deviceProfileName: window-covering
+  - id: "5207/18"
+    deviceLabel: WISTAR WSER50 Smart Tubular Motor
+    vendorId: 0x1457
+    productId: 0x0012
+    deviceProfileName: window-covering
+  - id: "5207/2"
+    deviceLabel: WISTAR WSERD30-B Smart Tubular Motor
+    vendorId: 0x1457
+    productId: 0x0002
+    deviceProfileName: window-covering-battery
+matterGeneric:
+  - id: "windowcovering"
+    deviceLabel: Matter Window Covering
+    deviceTypes:
+      - id: 0x0202 # Window Covering
+    deviceProfileName: window-covering

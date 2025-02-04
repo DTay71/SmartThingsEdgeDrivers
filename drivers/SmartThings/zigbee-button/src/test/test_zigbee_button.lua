@@ -17,17 +17,17 @@ local test = require "integration_test"
 local clusters = require "st.zigbee.zcl.clusters"
 local IASZone = clusters.IASZone
 local PowerConfiguration = clusters.PowerConfiguration
+local TemperatureMeasurement = clusters.TemperatureMeasurement
 local capabilities = require "st.capabilities"
 local zigbee_test_utils = require "integration_test.zigbee_test_utils"
 local IasEnrollResponseCode = require "st.zigbee.generated.zcl_clusters.IASZone.types.EnrollResponseCode"
-local base64 = require "st.base64"
 local t_utils = require "integration_test.utils"
 
 local ZoneStatusAttribute = IASZone.attributes.ZoneStatus
 local button_attr = capabilities.button.button
 
 local mock_device = test.mock_device.build_test_zigbee_device(
-    { profile = t_utils.get_profile_definition("button-profile.yml") }
+    { profile = t_utils.get_profile_definition("one-button-temp-battery.yml") }
 )
 zigbee_test_utils.prepare_zigbee_env_info()
 local function test_init()
@@ -160,27 +160,61 @@ test.register_message_test(
     }
 )
 
+test.register_message_test(
+  "Temperature report should be handled (C)",
+  {
+    {
+      channel = "zigbee",
+      direction = "receive",
+      message = { mock_device.id, TemperatureMeasurement.attributes.MeasuredValue:build_test_attr_report(mock_device, 2500)
+      }
+    },
+    {
+      channel = "capability",
+      direction = "send",
+      message = mock_device:generate_test_message("main", capabilities.temperatureMeasurement.temperature({ value = 25.0, unit = "C"}))
+    }
+  }
+)
+
+test.register_message_test(
+  "Minimum & Maximum Temperature report should be handled (C)",
+  {
+    {
+      channel = "zigbee",
+      direction = "receive",
+      message = { mock_device.id, TemperatureMeasurement.attributes.MinMeasuredValue:build_test_attr_report(mock_device, 2000)
+      }
+    },
+    {
+      channel = "zigbee",
+      direction = "receive",
+      message = { mock_device.id, TemperatureMeasurement.attributes.MaxMeasuredValue:build_test_attr_report(mock_device, 3000)
+      }
+    },
+    {
+      channel = "capability",
+      direction = "send",
+      message = mock_device:generate_test_message("main", capabilities.temperatureMeasurement.temperatureRange({ value = { minimum = 20.00, maximum = 30.00 }, unit = "C" }))
+    }
+  }
+)
+
 test.register_coroutine_test(
     "Health check should check all relevant attributes",
     function()
       test.socket.device_lifecycle:__queue_receive({ mock_device.id, "added"})
       test.socket.capability:__expect_send(
-        {
-          mock_device.id,
-          {
-            capability_id = "button", component_id = "main",
-            attribute_id = "supportedButtonValues", state = { value= { "pushed", "held", "double" } }
-          }
-        }
+        mock_device:generate_test_message(
+          "main",
+          capabilities.button.supportedButtonValues({ "pushed", "held", "double" }, { visibility = { displayed = false } })
+        )
       )
       test.socket.capability:__expect_send(
-        {
-          mock_device.id,
-          {
-            capability_id = "button", component_id = "main",
-            attribute_id = "numberOfButtons", state = { value = 1 }
-          }
-        }
+        mock_device:generate_test_message(
+          "main",
+          capabilities.button.numberOfButtons({ value = 1 }, { visibility = { displayed = false } })
+        )
       )
       test.socket.capability:__expect_send({
         mock_device.id,
@@ -188,6 +222,14 @@ test.register_coroutine_test(
           capability_id = "button", component_id = "main",
           attribute_id = "button", state = { value = "pushed" }
         }
+      })
+      test.socket.zigbee:__expect_send({
+        mock_device.id,
+        TemperatureMeasurement.attributes.MaxMeasuredValue:read(mock_device)
+      })
+      test.socket.zigbee:__expect_send({
+        mock_device.id,
+        TemperatureMeasurement.attributes.MinMeasuredValue:read(mock_device)
       })
       test.wait_for_events()
 
@@ -199,6 +241,10 @@ test.register_coroutine_test(
             PowerConfiguration.attributes.BatteryPercentageRemaining:read(mock_device)
           }
       )
+      test.socket.zigbee:__expect_send({
+        mock_device.id,
+        TemperatureMeasurement.attributes.MeasuredValue:read(mock_device)
+      })
     end,
     {
       test_init = function()
@@ -225,6 +271,12 @@ test.register_coroutine_test(
             IASZone.attributes.ZoneStatus:read(mock_device)
           }
       )
+      test.socket.zigbee:__expect_send(
+          {
+            mock_device.id,
+            TemperatureMeasurement.attributes.MeasuredValue:read(mock_device)
+          }
+      )
     end
 )
 
@@ -244,6 +296,14 @@ test.register_coroutine_test(
                                                                                          1)
           }
       )
+      test.socket.zigbee:__expect_send({
+        mock_device.id,
+        TemperatureMeasurement.attributes.MeasuredValue:configure_reporting(mock_device,
+                                                                            30,
+                                                                            600,
+                                                                            100)
+        }
+      )
       test.socket.zigbee:__expect_send(
           {
             mock_device.id,
@@ -251,6 +311,14 @@ test.register_coroutine_test(
                                                  zigbee_test_utils.mock_hub_eui,
                                                  PowerConfiguration.ID)
           }
+      )
+      test.socket.zigbee:__expect_send(
+        {
+          mock_device.id,
+          zigbee_test_utils.build_bind_request(mock_device,
+                                               zigbee_test_utils.mock_hub_eui,
+                                               TemperatureMeasurement.ID)
+        }
       )
       test.socket.zigbee:__expect_send(
           {
@@ -268,6 +336,12 @@ test.register_coroutine_test(
           {
             mock_device.id,
             PowerConfiguration.attributes.BatteryPercentageRemaining:read(mock_device)
+          }
+      )
+      test.socket.zigbee:__expect_send(
+          {
+            mock_device.id,
+            TemperatureMeasurement.attributes.MeasuredValue:read(mock_device)
           }
       )
       test.socket.zigbee:__expect_send(

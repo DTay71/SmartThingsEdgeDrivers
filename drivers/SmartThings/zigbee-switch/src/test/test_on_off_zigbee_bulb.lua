@@ -19,7 +19,6 @@ local OnOff = clusters.OnOff
 local Level = clusters.Level
 local capabilities = require "st.capabilities"
 local zigbee_test_utils = require "integration_test.zigbee_test_utils"
-local base64 = require "st.base64"
 local t_utils = require "integration_test.utils"
 
 local mock_simple_device = test.mock_device.build_test_zigbee_device(
@@ -95,6 +94,14 @@ test.register_message_test(
         channel = "capability",
         direction = "receive",
         message = { mock_simple_device.id, { capability = "switchLevel", component = "main", command = "setLevel", args = { 57, 0 } } }
+      },
+      {
+        channel = "devices",
+        direction = "send",
+        message = {
+          "register_native_capability_cmd_handler",
+          { device_uuid = mock_simple_device.id, capability_id = "switchLevel", capability_cmd_id = "setLevel" }
+        }
       },
       {
         channel = "zigbee",

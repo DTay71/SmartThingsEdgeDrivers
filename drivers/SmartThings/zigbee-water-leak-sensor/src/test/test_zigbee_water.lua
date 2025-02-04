@@ -21,7 +21,6 @@ local PowerConfiguration = clusters.PowerConfiguration
 local capabilities = require "st.capabilities"
 local zigbee_test_utils = require "integration_test.zigbee_test_utils"
 local IasEnrollResponseCode = require "st.zigbee.generated.zcl_clusters.IASZone.types.EnrollResponseCode"
-local base64 = require "st.base64"
 local t_utils = require "integration_test.utils"
 
 local ZoneStatusAttribute = IASZone.attributes.ZoneStatus
@@ -117,6 +116,33 @@ test.register_message_test(
 )
 
 test.register_message_test(
+  "Minimum & Maximum Temperature report should be handled (C)",
+  {
+    {
+      channel = "zigbee",
+      direction = "receive",
+      message = {
+        mock_device.id,
+        TemperatureMeasurement.attributes.MinMeasuredValue:build_test_attr_report(mock_device, 2000)
+      }
+    },
+    {
+      channel = "zigbee",
+      direction = "receive",
+      message = {
+        mock_device.id,
+        TemperatureMeasurement.attributes.MaxMeasuredValue:build_test_attr_report(mock_device, 3000)
+      }
+    },
+    {
+      channel = "capability",
+      direction = "send",
+      message = mock_device:generate_test_message("main", capabilities.temperatureMeasurement.temperatureRange({ value = { minimum = 20.00, maximum = 30.00 }, unit = "C" }))
+    }
+  }
+)
+
+test.register_message_test(
     "Battery percentage report should be handled",
     {
       {
@@ -136,6 +162,14 @@ test.register_coroutine_test(
     "Health check should check all relevant attributes",
     function()
       test.socket.device_lifecycle:__queue_receive({mock_device.id, "added"})
+      test.socket.zigbee:__expect_send({
+        mock_device.id,
+        TemperatureMeasurement.attributes.MaxMeasuredValue:read(mock_device)
+      })
+      test.socket.zigbee:__expect_send({
+        mock_device.id,
+        TemperatureMeasurement.attributes.MinMeasuredValue:read(mock_device)
+      })
       test.wait_for_events()
 
       test.mock_time.advance_time(50000) -- battery is 21600 for max reporting interval
@@ -172,6 +206,14 @@ test.register_coroutine_test(
     function ()
       test.socket.zigbee:__set_channel_ordering("relaxed")
       test.socket.device_lifecycle:__queue_receive({ mock_device.id, "added"})
+      test.socket.zigbee:__expect_send({
+        mock_device.id,
+        TemperatureMeasurement.attributes.MaxMeasuredValue:read(mock_device)
+      })
+      test.socket.zigbee:__expect_send({
+        mock_device.id,
+        TemperatureMeasurement.attributes.MinMeasuredValue:read(mock_device)
+      })
       test.socket.device_lifecycle:__queue_receive({ mock_device.id, "doConfigure"})
       test.socket.zigbee:__expect_send({
                                          mock_device.id,
@@ -190,8 +232,8 @@ test.register_coroutine_test(
                                          TemperatureMeasurement.attributes.MeasuredValue:configure_reporting(
                                              mock_device,
                                              30,
-                                             300,
-                                             0x10
+                                             600,
+                                             100
                                          )
                                        })
       test.socket.zigbee:__expect_send({
@@ -263,6 +305,22 @@ test.register_message_test(
         channel = "device_lifecycle",
         direction = "receive",
         message = {mock_device.id, "added"}
+      },
+      {
+        channel = "zigbee",
+        direction = "send",
+        message = {
+          mock_device.id,
+          TemperatureMeasurement.attributes.MaxMeasuredValue:read(mock_device)
+        }
+      },
+      {
+        channel = "zigbee",
+        direction = "send",
+        message = {
+          mock_device.id,
+          TemperatureMeasurement.attributes.MinMeasuredValue:read(mock_device)
+        }
       },
       {
         channel = "capability",

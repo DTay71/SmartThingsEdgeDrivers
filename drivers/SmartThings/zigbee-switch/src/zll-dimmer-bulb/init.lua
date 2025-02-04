@@ -14,10 +14,10 @@
 
 local capabilities = require "st.capabilities"
 local clusters = require "st.zigbee.zcl.clusters"
+local colorTemperature_defaults = require "st.zigbee.defaults.colorTemperature_defaults"
 
 local OnOff = clusters.OnOff
 local Level = clusters.Level
-local ColorControl = clusters.ColorControl
 
 local ZLL_DIMMER_BULB_FINGERPRINTS = {
   ["AduroSmart Eria"] = {
@@ -112,7 +112,6 @@ local ZLL_DIMMER_BULB_FINGERPRINTS = {
     ["LCT016"] = true,
     ["LST001"] = true,
     ["LST002"] = true,
-    ["LWB014"] = true,
     ["LTW001"] = true,
     ["LTW004"] = true,
     ["LTW010"] = true,
@@ -130,17 +129,19 @@ local ZLL_DIMMER_BULB_FINGERPRINTS = {
     ["GL-C-008"] = true,
     ["GL-B-001Z"] = true
   },
-  ["GLEDOPTO"] = {
-    ["GL-C-008"] = true,
-    ["GL-B-001Z"] = true
-  },
   ["Ubec"] = {
     ["BBB65L-HY"] = true
   }
 }
 
 local function can_handle_zll_dimmer_bulb(opts, driver, device)
-  return (ZLL_DIMMER_BULB_FINGERPRINTS[device:get_manufacturer()] or {})[device:get_model()] or false
+  local can_handle = (ZLL_DIMMER_BULB_FINGERPRINTS[device:get_manufacturer()] or {})[device:get_model()]
+  if can_handle then
+    local subdriver = require("zll-dimmer-bulb")
+    return true, subdriver
+  else
+    return false
+  end
 end
 
 local function do_configure(driver, device)
@@ -177,9 +178,7 @@ local function handle_set_level(driver, device, cmd)
 end
 
 local function handle_set_color_temperature(driver, device, cmd)
-  local temp_in_mired = math.floor(1000000 / cmd.args.temperature)
-  device:send(OnOff.commands.On(device))
-  device:send(ColorControl.commands.MoveToColorTemperature(device, temp_in_mired, 0x0000))
+  colorTemperature_defaults.set_color_temperature(driver, device, cmd)
 
   local function query_device()
     device:refresh()

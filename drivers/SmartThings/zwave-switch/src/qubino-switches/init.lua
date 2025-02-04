@@ -13,8 +13,6 @@
 -- limitations under the License.
 
 local capabilities = require "st.capabilities"
---- @type st.utils
-local utils = require "st.utils"
 --- @type st.zwave.CommandClass
 local cc = require "st.zwave.CommandClass"
 --- @type st.zwave.CommandClass.Meter
@@ -54,7 +52,11 @@ local function getDeviceProfile(device, isTemperatureSensorOnboard)
 end
 
 local function can_handle_qubino_flush_relay(opts, driver, device, cmd, ...)
-  return device.zwave_manufacturer_id == constants.QUBINO_MFR
+  if device:id_match(constants.QUBINO_MFR) then
+    local subdriver = require("qubino-switches")
+    return true, subdriver
+  end
+  return false
 end
 
 local function add_temperature_sensor_if_needed(device)

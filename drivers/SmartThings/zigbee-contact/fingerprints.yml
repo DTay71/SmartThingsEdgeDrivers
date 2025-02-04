@@ -1,4 +1,9 @@
 zigbeeManufacturer:
+  - id: "LUMI/lumi.magnet.agl02"
+    deviceLabel: Aqara Door and Window Sensor T1
+    manufacturer: LUMI
+    model: lumi.magnet.agl02
+    deviceProfileName: contact-battery-profile
   - id: "NYCE/3010"
     deviceLabel: NYCE Open/Closed Sensor
     manufacturer: NYCE
@@ -18,6 +23,11 @@ zigbeeManufacturer:
     deviceLabel: Sengled Open/Closed Sensor
     manufacturer: sengled
     model: E1D-G73
+    deviceProfileName: contact-battery-profile
+  - id: "sengled/E2D-G73"
+    deviceLabel: Sengled Open/Closed Sensor
+    manufacturer: sengled
+    model: E2D-G73
     deviceProfileName: contact-battery-profile
   - id: "Visonic/MCT-340 SMA"
     deviceLabel: Tyco Open/Closed Sensor
@@ -173,12 +183,17 @@ zigbeeManufacturer:
     deviceLabel: Multipurpose Sensor
     manufacturer: SmartThings
     model: PGC313
-    deviceProfileName: smartsense-multi
+    deviceProfileName: multi-sensor
   - id: Smartsense/multi/2
     deviceLabel: Multipurpose Sensor
     manufacturer: SmartThings
     model: PGC313EU
-    deviceProfileName: smartsense-multi
+    deviceProfileName: multi-sensor
+  - id: "Third Reality/3RVS01031Z"
+    deviceLabel: ThirdReality Vibration Sensor
+    manufacturer: Third Reality, Inc
+    model: 3RVS01031Z
+    deviceProfileName: thirdreality-multi-sensor
 zigbeeGeneric:
   - id: "contact-generic"
     deviceLabel: "Zigbee Contact Sensor"
@@ -202,4 +217,4 @@ zigbeeGeneric:
       - 0xFC01
     deviceIdentifiers:
       - 0x0139
-    deviceProfileName: smartsense-multi
+    deviceProfileName: multi-sensor

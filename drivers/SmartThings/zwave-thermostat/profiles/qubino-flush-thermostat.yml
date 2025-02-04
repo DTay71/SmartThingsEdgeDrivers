@@ -6,12 +6,20 @@ components:
     version: 1
   - id: thermostatHeatingSetpoint
     version: 1
-  - id: thermostatCoolingSetpoint
-    version: 1
+    config:
+      values:
+        - key: "heatingSetpoint.value"
+          range: [ -25, 80 ]
   - id: thermostatMode
     version: 1
   - id: thermostatOperatingState
     version: 1
+    config:
+      values:
+        - key: "thermostatOperatingState.value"
+          enabledValues:
+            - heating
+            - idle
   - id: powerMeter
     version: 1
   - id: energyMeter
@@ -20,9 +28,6 @@ components:
     version: 1
   categories:
   - name: Thermostat
-metadata:
-  mnmn: SmartThingsEdge
-  vid: SmartThings-smartthings-Qubino_Flush_Thermostat
 preferences:
   - name: "thermostatMode"
     title: "Thermostat Mode"
@@ -33,4 +38,4 @@ preferences:
       options:
         0: Heat
         1: Cool
-      default: "0"
+      default: 0
