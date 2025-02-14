@@ -22,7 +22,6 @@ local ElectricalMeasurement = clusters.ElectricalMeasurement
 local SimpleMetering = clusters.SimpleMetering
 local capabilities = require "st.capabilities"
 local zigbee_test_utils = require "integration_test.zigbee_test_utils"
-local base64 = require "st.base64"
 
 local zigbee_bulb_all_caps = {
   components = {
@@ -111,6 +110,14 @@ test.register_message_test(
         channel = "capability",
         direction = "receive",
         message = { mock_device.id, { capability = "switchLevel", component = "main", command = "setLevel", args = { 57, 0 } } }
+      },
+      {
+        channel = "devices",
+        direction = "send",
+        message = {
+          "register_native_capability_cmd_handler",
+          { device_uuid = mock_device.id, capability_id = "switchLevel", capability_cmd_id = "setLevel" }
+        }
       },
       {
         channel = "zigbee",
@@ -273,7 +280,7 @@ test.register_coroutine_test(
                                        })
       test.socket.zigbee:__expect_send({
                                          mock_device.id,
-                                         SimpleMetering.attributes.InstantaneousDemand:configure_reporting(mock_device, 1, 3600, 1)
+                                         SimpleMetering.attributes.InstantaneousDemand:configure_reporting(mock_device, 1, 3600, 5)
                                        })
       test.socket.zigbee:__expect_send({
                                          mock_device.id,
@@ -287,7 +294,7 @@ test.register_coroutine_test(
                                        })
       test.socket.zigbee:__expect_send({
                                          mock_device.id,
-                                         ElectricalMeasurement.attributes.ActivePower:configure_reporting(mock_device, 1, 3600, 1)
+                                         ElectricalMeasurement.attributes.ActivePower:configure_reporting(mock_device, 1, 3600, 5)
                                        })
       test.socket.zigbee:__expect_send({
                                          mock_device.id,
@@ -341,6 +348,7 @@ test.register_coroutine_test(
     function()
       test.timer.__create_and_queue_test_time_advance_timer(2, "oneshot")
       test.socket.capability:__queue_receive({mock_device.id, { capability = "colorControl", component = "main", command = "setColor", args = { { hue = 50, saturation = 50 } } } })
+      mock_device:expect_native_cmd_handler_registration("colorControl", "setColor")
       test.socket.zigbee:__expect_send(
           {
             mock_device.id,
@@ -375,6 +383,7 @@ test.register_coroutine_test(
   function()
     test.socket.zigbee:__set_channel_ordering("relaxed")
     test.socket.capability:__queue_receive({mock_device.id, { capability = "colorTemperature", component = "main", command = "setColorTemperature", args = {1800}}})
+    mock_device:expect_native_cmd_handler_registration("colorTemperature", "setColorTemperature")
     test.socket.zigbee:__expect_send({mock_device.id, ColorControl.server.commands.MoveToColorTemperature(mock_device, 556, 0x0000)})
     test.socket.zigbee:__expect_send({mock_device.id, OnOff.server.commands.On(mock_device)})
     test.wait_for_events()

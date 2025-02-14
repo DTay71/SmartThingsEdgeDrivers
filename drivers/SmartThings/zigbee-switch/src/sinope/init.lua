@@ -14,7 +14,6 @@
 
 local cluster_base = require "st.zigbee.cluster_base"
 local data_types = require "st.zigbee.data_types"
-local utils = require "st.utils"
 
 local SINOPE_SWITCH_CLUSTER = 0xFF01
 local SINOPE_MAX_INTENSITY_ON_ATTRIBUTE = 0x0052
@@ -43,7 +42,13 @@ local zigbee_sinope_switch = {
     infoChanged = info_changed
   },
   can_handle = function(opts, driver, device, ...)
-       return device:get_manufacturer() == "Sinope Technologies" and device:get_model() == "SW2500ZB"
+    local can_handle = device:get_manufacturer() == "Sinope Technologies" and device:get_model() == "SW2500ZB"
+    if can_handle then
+      local subdriver = require("sinope")
+      return true, subdriver
+    else
+      return false
+    end
   end
 }
 

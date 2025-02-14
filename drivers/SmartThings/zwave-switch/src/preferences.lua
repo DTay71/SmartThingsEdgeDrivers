@@ -12,6 +12,22 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
+local AEOTEC_HEAVY_DUTY_SWITCH = {
+  PARAMETERS = {
+    overloadProtection = { type = 'config', parameter_number = 3, size = 1 },
+    ledAfterPower      = { type = 'config', parameter_number = 20, size = 1 },
+    autoReportType     = { type = 'config', parameter_number = 80, size = 1 },
+    powerThreshold     = { type = 'config', parameter_number = 90, size = 1 },
+    group1Sensors      = { type = 'config', parameter_number = 101, size = 4 },
+    group2Sensors      = { type = 'config', parameter_number = 102, size = 4 },
+    group3Sensors      = { type = 'config', parameter_number = 103, size = 4 },
+    group1Time         = { type = 'config', parameter_number = 111, size = 4 },
+    group2Time         = { type = 'config', parameter_number = 112, size = 4 },
+    group3Time         = { type = 'config', parameter_number = 113, size = 4 },
+    assocGroup1        = { type = 'assoc', group = 1, maxnodes = 5, addhub = true }
+  }
+}
+
 local devices = {
   INOVELLI = {
     MATCHING_MATRIX = {
@@ -265,6 +281,93 @@ local devices = {
       threeWaySwitch = {parameter_number = 26, size = 1},
       loadControllMode = {parameter_number = 30, size = 1},
       levelCorrection = {parameter_number = 38, size = 2}
+    }
+  },
+  ZOOZ_ZEN_30 = {
+    MATCHING_MATRIX = {
+      mfrs = 0x027A,
+      product_types = 0xA000,
+      product_ids = 0xA008
+    },
+    PARAMETERS = {
+      powerFailure = {parameter_number = 12, size = 1},
+      ledSceneControl = {parameter_number = 7, size = 1},
+      relayLedMode = {parameter_number = 2, size = 1},
+      relayLedColor = {parameter_number = 4, size = 1},
+      relayLedBrightness = {parameter_number = 6, size = 1},
+      relayAutoOff = {parameter_number = 10, size = 4},
+      relayAutoOn = {parameter_number = 11, size = 4},
+      relayLoadControl = {parameter_number = 20, size = 1},
+      relayPhysicalDisabledBeh = {parameter_number = 25, size = 1},
+      dimmerLedMode = {parameter_number = 1, size = 1},
+      dimmerLedColor = {parameter_number = 3, size = 1},
+      dimmerLedBright = {parameter_number = 5, size = 1},
+      dimmerAutoOff = {parameter_number = 8, size = 4},
+      dimmerAutoOn = {parameter_number = 9, size = 4},
+      dimmerRampRate = {parameter_number = 13, size = 1},
+      dimmerPaddleRamp = {parameter_number = 21, size = 1},
+      dimmerMinimumBright = {parameter_number = 14, size = 1},
+      dimmerMaximumBright = {parameter_number = 15, size = 1},
+      dimmerCustomBright = {parameter_number = 23, size = 1},
+      dimmerBrightControl = {parameter_number = 18, size = 1},
+      dimmerDoubleTapFunc = {parameter_number = 17, size = 1},
+      dimmerLoadControl = {parameter_number = 19, size = 1},
+      dimmerPhysDisBeh = {parameter_number = 24, size = 1},
+      dimmerNightBright = {parameter_number = 26, size = 1},
+      dimmerPaddleControl = {parameter_number = 27, size = 1}
+    }
+  },
+  AEOTEC_HEAVY_DUTY = {
+    MATCHING_MATRIX = {
+      mfrs = 0x0086,
+      product_ids = 0x004E
+    },
+    PARAMETERS = AEOTEC_HEAVY_DUTY_SWITCH.PARAMETERS
+  },
+  SWITCH_LEVEL_INDICATOR = {
+    MATCHING_MATRIX = {
+      mfrs = 0x0063,
+      product_types = {0x4457, 0x4944, 0x5044}
+    },
+    PARAMETERS = {
+      ledIndicator = {parameter_number = 3, size = 1}
+    }
+  },
+  SWITCH_BINARY_INDICATOR = {
+    MATCHING_MATRIX = {
+      mfrs = {0x0063, 0113},
+      product_types = {0x4952, 0x5257, 0x5052}
+    },
+    PARAMETERS = {
+      ledIndicator = {parameter_number = 3, size = 1}
+    }
+  },
+  LEVITON_DIMMER = {
+    MATCHING_MATRIX = {
+      mfrs = 0x001D,
+      product_types = 0x0041,
+      product_ids = 0x0002
+    },
+    PARAMETERS = {
+      fadeOnTime = {parameter_number = 1, size = 4},
+      fadeOffTime = {parameter_number = 2, size = 4},
+      minLevel = {parameter_number = 3, size = 4},
+      maxLevel = {parameter_number = 4, size = 4},
+      presetLevel = {parameter_number = 5, size = 4},
+      dimBarTimeout = {parameter_number = 6, size = 4},
+      statusLEDmode = {parameter_number = 7, size = 4},
+      loadType = {parameter_number = 8, size = 4},
+      controlTiming = {parameter_number = 9, size = 4}
+    }
+  },
+  LEVITON_SWITCH = {
+    MATCHING_MATRIX = {
+      mfrs = 0x001D,
+      product_types = 0x0042,
+      product_ids = 0x0002
+    },
+    PARAMETERS = {
+    statusLEDmode = {parameter_number = 7, size = 4}
     }
   }
 }

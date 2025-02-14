@@ -20,6 +20,7 @@ local SimpleMetering = clusters.SimpleMetering
 local ElectricalMeasurement = clusters.ElectricalMeasurement
 
 local SWITCH_POWER_FINGERPRINTS = {
+  { mfr = "Vimar", model = "Mains_Power_Outlet_v1.0" },
   { model = "PAN18-v1.0.7" },
   { model = "E210-KR210Z1-HA" },
   { mfr = "Aurora", model = "Smart16ARelay51AU" },
@@ -37,7 +38,8 @@ local SWITCH_POWER_FINGERPRINTS = {
 local function can_handle_zigbee_switch_power(opts, driver, device)
   for _, fingerprint in ipairs(SWITCH_POWER_FINGERPRINTS) do
     if device:get_manufacturer() == fingerprint.mfr and device:get_model() == fingerprint.model then
-      return true
+      local subdriver = require("zigbee-switch-power")
+      return true, subdriver
     end
   end
   return false
@@ -74,7 +76,8 @@ local zigbee_switch_power = {
     }
   },
   sub_drivers = {
-    require("zigbee-switch-power/aurora-relay")
+    require("zigbee-switch-power/aurora-relay"),
+    require("zigbee-switch-power/vimar")
   },
   can_handle = can_handle_zigbee_switch_power
 }

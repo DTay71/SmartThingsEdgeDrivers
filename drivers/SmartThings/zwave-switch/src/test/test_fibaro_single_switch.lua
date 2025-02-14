@@ -21,6 +21,7 @@ local CentralScene = (require "st.zwave.CommandClass.CentralScene")({version=1})
 local Configuration = (require "st.zwave.CommandClass.Configuration")({version=1})
 local Meter = (require "st.zwave.CommandClass.Meter")({version=3})
 local SwitchBinary = (require "st.zwave.CommandClass.SwitchBinary")({version=2})
+local Basic = (require "st.zwave.CommandClass.Basic")({ version=1 })
 
 -- supported comand classes
 local sensor_endpoints = {
@@ -48,6 +49,42 @@ local function  test_init()
 end
 test.set_test_init_function(test_init)
 
+test.register_coroutine_test(
+  "Device should use Basic SETs despite supporting Switch Multilevel (on)",
+  function ()
+    test.socket.capability:__queue_receive({
+      mock_device.id,
+      { capability = "switch", command = "on", args = {}}
+    })
+    test.socket.zwave:__expect_send(
+      zw_test_utils.zwave_test_build_send_command(
+        mock_device,
+        Basic:Set({
+          value = 0xFF
+        })
+      )
+    )
+  end
+)
+
+test.register_coroutine_test(
+  "Device should use Basic SETs despite supporting Switch Multilevel (off)",
+  function ()
+    test.socket.capability:__queue_receive({
+      mock_device.id,
+      { capability = "switch", command = "off", args = {}}
+    })
+    test.socket.zwave:__expect_send(
+      zw_test_utils.zwave_test_build_send_command(
+        mock_device,
+        Basic:Set({
+          value = 0x00
+        })
+      )
+    )
+  end
+)
+
 test.register_message_test(
   "Switch Binary report ON_ENABLE should be handled",
   {
@@ -64,7 +101,7 @@ test.register_message_test(
         zw_test_utils.zwave_test_build_receive_command(
           SwitchBinary:Report(
             {
-              target_value=SwitchBinary.value.ON_ENABLE
+              current_value=SwitchBinary.value.ON_ENABLE
             }
           )
         )
@@ -94,7 +131,7 @@ test.register_message_test(
         zw_test_utils.zwave_test_build_receive_command(
           SwitchBinary:Report(
             {
-              target_value=SwitchBinary.value.ON_ENABLE
+              current_value=SwitchBinary.value.ON_ENABLE
             },
             {
               encap = zw.ENCAP.AUTO,
@@ -124,7 +161,7 @@ test.register_message_test(
         zw_test_utils.zwave_test_build_receive_command(
           SwitchBinary:Report(
             {
-              target_value=SwitchBinary.value.OFF_DISABLE
+              current_value=SwitchBinary.value.OFF_DISABLE
             }
           )
         )
@@ -154,7 +191,7 @@ test.register_message_test(
         zw_test_utils.zwave_test_build_receive_command(
           SwitchBinary:Report(
             {
-              target_value=SwitchBinary.value.OFF_DISABLE
+              current_value=SwitchBinary.value.OFF_DISABLE
             },
             {
               encap = zw.ENCAP.AUTO,
@@ -174,8 +211,8 @@ test.register_message_test(
     {
       channel = "zwave",
       direction = "receive",
-      message = { 
-        mock_device.id, 
+      message = {
+        mock_device.id,
         zw_test_utils.zwave_test_build_receive_command(
           CentralScene:Notification(
             {
@@ -201,8 +238,8 @@ test.register_message_test(
     {
       channel = "zwave",
       direction = "receive",
-      message = { 
-        mock_device.id, 
+      message = {
+        mock_device.id,
         zw_test_utils.zwave_test_build_receive_command(
           CentralScene:Notification(
             {
@@ -247,8 +284,8 @@ test.register_message_test(
     {
       channel = "zwave",
       direction = "receive",
-      message = { 
-        mock_device.id, 
+      message = {
+        mock_device.id,
         zw_test_utils.zwave_test_build_receive_command(
           CentralScene:Notification(
             {
@@ -293,8 +330,8 @@ test.register_message_test(
     {
       channel = "zwave",
       direction = "receive",
-      message = { 
-        mock_device.id, 
+      message = {
+        mock_device.id,
         zw_test_utils.zwave_test_build_receive_command(
           CentralScene:Notification(
             {
@@ -339,8 +376,8 @@ test.register_message_test(
     {
       channel = "zwave",
       direction = "receive",
-      message = { 
-        mock_device.id, 
+      message = {
+        mock_device.id,
         zw_test_utils.zwave_test_build_receive_command(
           CentralScene:Notification(
             {
@@ -385,8 +422,8 @@ test.register_message_test(
     {
       channel = "zwave",
       direction = "receive",
-      message = { 
-        mock_device.id, 
+      message = {
+        mock_device.id,
         zw_test_utils.zwave_test_build_receive_command(
           CentralScene:Notification(
             {
@@ -425,13 +462,13 @@ test.register_message_test(
 )
 
 test.register_message_test(
-  "Energy meter report  from source channel 2 should be discarded",
+  "Energy meter report from source channel 2 should be discarded",
   {
     {
       channel = "zwave",
       direction = "receive",
-      message = { 
-        mock_device.id, 
+      message = {
+        mock_device.id,
         zw_test_utils.zwave_test_build_receive_command(
           Meter:Report(
             {
@@ -442,7 +479,7 @@ test.register_message_test(
               encap = zw.ENCAP.AUTO,
               src_channel = 2,
               dst_channels={0}
-            }              
+            }
           )
         )
       }
@@ -475,8 +512,8 @@ test.register_message_test(
     {
       channel = "zwave",
       direction = "receive",
-      message = { 
-        mock_device.id, 
+      message = {
+        mock_device.id,
         zw_test_utils.zwave_test_build_receive_command(
           Meter:Report(
             {
@@ -487,7 +524,7 @@ test.register_message_test(
               encap = zw.ENCAP.AUTO,
               src_channel = 2,
               dst_channels={0}
-            }              
+            }
           )
         )
       }
